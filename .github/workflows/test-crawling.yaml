@@ -32,14 +32,11 @@ jobs:
         run: |
           wc -l enji.txt
           wc -l palomino.txt
-          cat enji.txt | head -n 10 > enji.txt
-          cat palomino.txt | head -n 10 > palomino.txt
-          cat enji.txt
-          cat palomino.txt
+          head -n 5 enji.txt > test.txt
+          head -n 5 palomino.txt >> test.txt
+          cat test.txt
 
       - name: Test scraping
         run: |
-          python scraper.py -i enji.txt enji.json
-          python scraper.py -i palomino.txt palomino.json
-          jq . enji.json
-          jq . palomino.json
+          python scraper.py -i test.txt test.json
+          cat test.json | jq

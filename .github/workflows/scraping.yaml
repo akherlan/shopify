@@ -2,7 +2,7 @@ name: Scraping
 on:
   push:
     branches:
-      - devel
+      - scraping
   workflow_dispatch:
 
 jobs:
@@ -27,6 +27,10 @@ jobs:
         
       - name: Scraping process
         run: python scraper.py -i enji.txt enji.json
+
+      - name: File checking
+        run: |
+          wc -l enji.txt
         
       - name: Commit result
         run: |

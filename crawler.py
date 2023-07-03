@@ -25,13 +25,13 @@ def parse_catalog(response):
 
 def get_pagination(response):
     html = HTMLParser(response.text)
-    page_nav = [nav.text(strip=True) for nav in html.css("div.Pagination__Nav a")]
-    if len(page_nav) >= 2:
-        last_page = page_nav[-2]
-        if int(last_page) >= 2:
+    navigations = html.css("div.Pagination__Nav a")
+    if navigations is not None:
+        page_nav = [nav.text(strip=True) for nav in navigations]
+        if len(page_nav) >= 2 and int(page_nav[-2]) >= 2:
             return [
                 str(response.url) + f"?page={page}"
-                for page in range(2, int(last_page) + 1)
+                for page in range(2, int(page_nav[-2]) + 1)
             ]
         else:
             return []

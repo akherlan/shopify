@@ -1,4 +1,6 @@
 # Shopify 
 
-Trial for https://enji.co.id
+Trial for:
 
+- [En-ji](https://enji.co.id/)
+- [Palomino](https://palominobag.com/)

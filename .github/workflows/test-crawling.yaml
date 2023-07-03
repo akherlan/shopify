@@ -21,7 +21,7 @@ jobs:
       - name: Install module
         run: |
           python -m pip install --upgrade pip
-          pip install httpx selectolax rich
+          pip install httpx selectolax
 
       - name: Test crawling
         run: |
@@ -39,7 +39,7 @@ jobs:
 
       - name: Test scraping
         run: |
-          python scraping.py -i enji.txt enji.json
-          python scraping.py -i palomino.txt palomino.json
-          python pretty_print.py enji.json
-          python pretty_print.py palomino.json
+          python scraper.py -i enji.txt enji.json
+          python scraper.py -i palomino.txt palomino.json
+          jq . enji.json
+          jq . palomino.json

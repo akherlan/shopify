@@ -2,7 +2,7 @@ name: Scraping
 on:
   push:
     branches:
-      - devel
+      - scraping
   workflow_dispatch:
 
 jobs:

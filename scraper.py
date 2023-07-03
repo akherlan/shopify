@@ -63,8 +63,8 @@ async def main(fileout, filein):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Scraping product from URL")
     parser.add_argument("fileout", help="output path for result")
-    parser.add_argument("-i", "--inputfile", help="input path containing list of product URL")
+    parser.add_argument("-i", "--input", help="input path containing list of product URL")
     args = parser.parse_args()
     start = time.time()
-    asyncio.run(main(fileout=fileout, filein=inputfile))
+    asyncio.run(main(fileout=args.fileout, filein=args.input))
     print(f"---------- {time.time() - start} seconds ----------")

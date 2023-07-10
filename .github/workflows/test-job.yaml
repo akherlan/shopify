@@ -4,6 +4,9 @@ on:
     branches:
       - main
       - devel
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
@@ -25,8 +28,8 @@ jobs:
 
       - name: Test crawling
         run: |
-          python crawler.py -u https://enji.co.id enji.txt
-          python crawler.py -u https://palominobag.com palomino.txt
+          python shopify.py -c crawl -i https://enji.co.id enji.txt
+          python shopify.py -c crawl -i https://palominobag.com palomino.txt
 
       - name: File checking
         run: |
@@ -38,5 +41,5 @@ jobs:
 
       - name: Test scraping
         run: |
-          python scraper.py -i test.txt test.json
+          python shopify.py -c scrape -i test.txt test.json
           cat test.json | jq

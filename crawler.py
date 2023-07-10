@@ -1,9 +1,7 @@
 import httpx
 import asyncio
-import time
-import argparse
 from urllib.parse import urljoin
-from random import randrange
+from random import randint
 from selectolax.parser import HTMLParser
 
 
@@ -45,7 +43,7 @@ async def fetch_product(url, all_product=False, timeout=60):
         responses = [session.get(item_catalog) for item_catalog in catalog]
         for task in asyncio.as_completed(responses):
             response = await task
-            time.sleep(randrange(1))
+            await asyncio.sleep(randint(0, 2))
             for product in parse_catalog(response):
                 yield product
             if all_product:
@@ -64,14 +62,4 @@ async def scrape_product_url(url: str, fileout: str, all_product: bool = False):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Get list of product from a website")
-    parser.add_argument("fileout", help="output path for result")
-    parser.add_argument("-u", "--url", help="website url e.g. https://enji.co.id")
-    args = parser.parse_args()
-    start = time.time()
-    asyncio.run(
-        scrape_product_url(
-            url=args.url, fileout=args.fileout, all_product=True
-        )
-    )
-    print(f"---------- {time.time() - start} seconds ----------")
+    pass

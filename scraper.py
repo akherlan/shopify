@@ -1,12 +1,9 @@
 import httpx
 import asyncio
-import time
-import argparse
 import logging
 import json
-from random import randrange
+from random import randint
 from urllib.parse import urljoin
-from random import randrange
 from selectolax.parser import HTMLParser
 
 
@@ -22,7 +19,7 @@ def parse_product(response):
     html = HTMLParser(response.text)
     try:
         product = html.css_first("script[type='application/ld+json']").text()
-        product = json.loads(product)
+        product = json.loads(product, strict=False)
         description = extract_description(html)
         if description is not None:
             product.update({"description": description})
@@ -49,12 +46,12 @@ async def get_product(urlpath: str, timeout: int = 60):
         requests = [session.get(link) for link in links]
         for task in asyncio.as_completed(requests):
             response = await task
-            time.sleep(randrange(5))
+            await asyncio.sleep(randint(0, 5))
             for product in parse_product(response):
                 # logging.info(f"GET {str(response.url)}")
                 yield product
 
-async def main(fileout, filein):
+async def get_data(fileout, filein):
     with open(fileout, "w") as f:
         data = []
         async for product in get_product(filein):
@@ -63,10 +60,4 @@ async def main(fileout, filein):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Scraping product from URL")
-    parser.add_argument("fileout", help="output path for result")
-    parser.add_argument("-i", "--input", help="input path containing list of product URL")
-    args = parser.parse_args()
-    start = time.time()
-    asyncio.run(main(fileout=args.fileout, filein=args.input))
-    print(f"---------- {time.time() - start} seconds ----------")
+    pass

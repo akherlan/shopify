@@ -1,12 +1,14 @@
 import httpx
 import asyncio
+
+from random import randint
+from urllib.parse import urljoin
+from selectolax.parser import HTMLParser
+
 import logging
 import json
 import os
 import re
-from random import randint
-from urllib.parse import urljoin
-from selectolax.parser import HTMLParser
 
 
 logging.basicConfig(
@@ -20,13 +22,16 @@ logging.basicConfig(
 def parse_product(response):
     html = HTMLParser(response.text)
     try:
-        product = html.css_first("script[type='application/ld+json']").text()
-        product = json.loads(product, strict=False)
-        description = extract_description(html)
-        if description is not None:
-            product.update({"description": description})
+        product = html.css_first("script[type='application/ld+json']")
+        if product:
+            product = json.loads(product.text(strip=True), strict=False)
+            description = extract_description(html)
+            if description is not None:
+                product.update({"description": description})
     except Exception as e:
+        logging.info("title: %s".format(html.css_first("title").text(strip=True)))
         logging.error(f"{str(e)} {str(response.url)}", exc_info=True)
+        product = None
     finally:
         yield product
 
@@ -52,6 +57,7 @@ async def get_product(urlpath: str, timeout: int = 60):
             for product in parse_product(response):
                 # logging.info(f"GET {str(response.url)}")
                 yield product
+
 
 async def get_data(fileout, filein):
     if re.findall("/", fileout):

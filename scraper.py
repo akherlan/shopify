@@ -2,13 +2,15 @@ import httpx
 import asyncio
 import logging
 import json
+import os
+import re
 from random import randint
 from urllib.parse import urljoin
 from selectolax.parser import HTMLParser
 
 
 logging.basicConfig(
-    # filename="logs",
+    # filename="log.log",
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
@@ -52,6 +54,10 @@ async def get_product(urlpath: str, timeout: int = 60):
                 yield product
 
 async def get_data(fileout, filein):
+    if re.findall("/", fileout):
+        directory = fileout.replace(fileout.split("/")[-1], "")
+        if not os.path.exists(directory):
+            os.makedirs(directory)
     with open(fileout, "w") as f:
         data = []
         async for product in get_product(filein):

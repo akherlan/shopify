@@ -25,10 +25,10 @@ async def main(command, fin, fout):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Scraping product from Shopify powered website"
+        description="Scraping product from a Shopify powered website"
     )
     parser.add_argument("fileout", help="output path for result")
     parser.add_argument("-c", "--command", help="crawl, scrape")
-    parser.add_argument("-i", "--input", help="website, path containing links")
+    parser.add_argument("-i", "--input", help="website, product links file path")
     args = parser.parse_args()
     asyncio.run(main(command=args.command, fin=args.input, fout=args.fileout))

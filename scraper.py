@@ -23,13 +23,20 @@ def parse_product(response):
     html = HTMLParser(response.text)
     try:
         product = html.css_first("script[type='application/ld+json']")
+        if product is not None:
+            product = product.text(strip=True)
+        else:
+            product = html.css_first("link[type='application/json+oembed']")
+            if product is not None:
+                product_href = product.attributes.get("href")
+                product = httpx.get(product_href).text
         if product:
-            product = json.loads(product.text(strip=True), strict=False)
+            product = json.loads(product, strict=False)
             description = extract_description(html)
             if description is not None:
                 product.update({"description": description})
     except Exception as e:
-        logging.info("title: %s".format(html.css_first("title").text(strip=True)))
+        logging.info("title: {}".format(html.css_first("title").text(strip=True)))
         logging.error(f"{str(e)} {str(response.url)}", exc_info=True)
         product = None
     finally:
@@ -40,8 +47,14 @@ def extract_description(html):
     try:
         description = html.css_first("div.Rte").html
     except Exception as e:
+        # description = html.css_first("div#description")
+        # if description:
+        #     description = description.html
+        # else:
+        #     description = None
+        #     logging.warning(str(e))
         description = None
-        logging.error(str(e))
+        logging.warning(str(e))
     finally:
         return description
 
@@ -55,7 +68,6 @@ async def get_product(urlpath: str, timeout: int = 60):
             response = await task
             await asyncio.sleep(randint(0, 5))
             for product in parse_product(response):
-                # logging.info(f"GET {str(response.url)}")
                 yield product
 
 
@@ -73,3 +85,4 @@ async def get_data(fileout, filein):
 
 if __name__ == "__main__":
     pass
+

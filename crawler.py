@@ -10,20 +10,35 @@ async def fetch_catalog(url, session):
     response = await session.get(url)
     html = HTMLParser(response.text)
     catalog = []
-    for item in html.css("a.CollectionItem"):
+    for item in html.css("a"):
         collection = item.attributes.get("href")
-        catalog.append(urljoin(url, collection))
+        try:
+            is_catalog = collection.split("/")[1] == "collections"
+        except:
+            is_catalog = False
+        link = urljoin(url, collection)
+        if is_catalog and link not in catalog:
+            catalog.append(link)
     return catalog
 
 
 def parse_catalog(response):
-    for item in HTMLParser(response.text).css("h2 > a"):
-        yield urljoin(str(response.url), item.attributes.get("href"))
+    for item in HTMLParser(response.text).css("a"):
+        product_link = item.attributes.get("href")
+        try:
+            product_split = product_link.split("/")
+            is_product = (
+                product_split[1] == "collections" and product_split[3] == "products"
+            )
+        except:
+            is_product = False
+        if is_product:
+            yield urljoin(str(response.url), product_link)
 
 
 def get_pagination(response):
     html = HTMLParser(response.text)
-    navigations = html.css("div.Pagination__Nav a")
+    navigations = html.css("div[class*=agination] a")
     if navigations is not None:
         page_nav = [nav.text(strip=True) for nav in navigations]
         if len(page_nav) >= 2 and int(page_nav[-2]) >= 2:
@@ -56,10 +71,14 @@ async def fetch_product(url, all_product=False, timeout=60):
 
 async def scrape_product_url(url: str, fileout: str, all_product: bool = False):
     with open(fileout, "a") as f:
+        product_urls = []
         async for item in fetch_product(url, all_product):
-            f.write(item + "\n")
-            print(item)
+            if item not in product_urls:
+                f.write(item + "\n")
+                product_urls.append(item)
+                print(item)
 
 
 if __name__ == "__main__":
     pass
+

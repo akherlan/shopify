@@ -71,9 +71,12 @@ async def fetch_product(url, all_product=False, timeout=60):
 
 async def scrape_product_url(url: str, fileout: str, all_product: bool = False):
     with open(fileout, "a") as f:
+        product_urls = []
         async for item in fetch_product(url, all_product):
-            f.write(item + "\n")
-            print(item)
+            if item not in product_urls:
+                f.write(item + "\n")
+                product_urls.append(item)
+                print(item)
 
 
 if __name__ == "__main__":

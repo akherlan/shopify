@@ -34,12 +34,9 @@ jobs:
 
       - name: File checking
         run: |
-          wc -l enji.txt
-          wc -l kami.txt
-          wc -l palomino.txt
-          head -n 3 enji.txt > test.txt
-          head -n 3 kami.txt >> test.txt
-          head -n 3 palomino.txt >> test.txt
+          wc -l enji.txt && head -n 3 enji.txt > test.txt
+          wc -l kami.txt && head -n 3 kami.txt >> test.txt
+          wc -l palomino.txt && head -n 3 palomino.txt >> test.txt
           cat test.txt
 
       - name: Test scraping

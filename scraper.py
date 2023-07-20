@@ -22,41 +22,25 @@ logging.basicConfig(
 def parse_product(response):
     html = HTMLParser(response.text)
     try:
-        product = html.css_first("script[type='application/ld+json']")
-        if product is not None:
-            product = product.text(strip=True)
+        json_obj = html.css("script[type='application/json']")
+        if len(json_obj) >= 2:
+            product = json_obj[1]
+        elif html.css_matches("link[type='application/json+oembed']"):
+            json_obj = list(
+                filter(lambda node: node.css_matches("script[id*=product]"), json_obj)
+            )
+            product = json_obj[0] if len(json_obj) > 0 else None
         else:
-            product = html.css_first("link[type='application/json+oembed']")
-            if product is not None:
-                product_href = product.attributes.get("href")
-                product = httpx.get(product_href).text
+            product = html.css_first("script[type='application/ld+json']")
         if product:
+            product = product.text(strip=True)
             product = json.loads(product, strict=False)
-            description = extract_description(html)
-            if description is not None:
-                product.update({"description": description})
     except Exception as e:
         logging.info("title: {}".format(html.css_first("title").text(strip=True)))
         logging.error(f"{str(e)} {str(response.url)}", exc_info=True)
         product = None
     finally:
         yield product
-
-
-def extract_description(html):
-    try:
-        description = html.css_first("div.Rte").html
-    except Exception as e:
-        # description = html.css_first("div#description")
-        # if description:
-        #     description = description.html
-        # else:
-        #     description = None
-        #     logging.warning(str(e))
-        description = None
-        logging.warning(str(e))
-    finally:
-        return description
 
 
 async def get_product(urlpath: str, timeout: int = 60):
@@ -85,4 +69,3 @@ async def get_data(fileout, filein):
 
 if __name__ == "__main__":
     pass
-

@@ -23,21 +23,15 @@ def parse_product(response):
     html = HTMLParser(response.text)
     try:
         product = html.css_first("script[type='application/ld+json']")
-        logging.info("check point 1: {}".format(product))
         if product is not None:
             product = product.text(strip=True)
-            logging.info("check point 2: {}".format(product))
         else:
             product = html.css_first("link[type='application/json+oembed']")
-            logging.info("check point 3: {}".format(product))
             if product is not None:
                 product_href = product.attributes.get("href")
-                logging.info(f"product_href: {product_href}")
                 product = httpx.get(product_href).text
-                logging.info("check point 4: {}".format(product))
         if product:
             product = json.loads(product, strict=False)
-            logging.info("check point 5: {}".format(product))
             description = extract_description(html)
             if description is not None:
                 product.update({"description": description})

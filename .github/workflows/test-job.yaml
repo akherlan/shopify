@@ -27,10 +27,12 @@ jobs:
 
       - name: Test scraping
         run: |
+          python shopify.py -p p_buttonscarves.csv -o o_buttonscarves.csv https://www.buttonscarves.com
           python shopify.py -p p_enji.csv -o o_enji.csv https://enji.co.id
           python shopify.py -p p_etcetera.csv -o o_etcetera.csv https://etcetera.co.id
           python shopify.py -p p_geela.csv -o o_geela.csv https://geela.id
           python shopify.py -p p_kami.csv -o o_kami.csv https://kamiidea.com
+          python shopify.py -p p_minimal.csv -o o_minimal.csv https://minimal.id
           python shopify.py -p p_palomino.csv -o o_palomino.csv https://palominobag.com
           python shopify.py -p p_purukambera.csv -o o_purukambera.csv https://purukambera.com
 
@@ -40,9 +42,9 @@ jobs:
             wc -l $file
             tail -n 2 $file >> product.csv
           done;
-          echo "----- PRODUCT -----\n" && cat product.csv
+          echo "----- PRODUCT -----" && cat product.csv
           for file in $(ls | grep -E "^o_.+\.csv$"); do
             tail -n 2 $file >> offers.csv
           done;
-          echo "----- PRICES -----\n" && cat offers.csv
+          echo "----- PRICES -----" && cat offers.csv
 

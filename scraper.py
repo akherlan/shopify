@@ -2,7 +2,7 @@ import httpx
 import json
 import pandas as pd
 from urllib.parse import urljoin
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 import logging
 
 
@@ -56,19 +56,17 @@ class ShopifyScraper:
         return datetime.strptime(string, fmt)
 
     def transform(self, rawdata):
-        acquisition_date = datetime.now()
         date_fmt = "%Y-%m-%dT%H:%M:%S%z"
+        tzinfo = timezone(timedelta(hours=7))
+        # acquisition_date = datetime.now(tzinfo).strftime(date_fmt)
+        acquisition_date = datetime.now(tzinfo).replace(microsecond=0).isoformat()
 
         name = list(map(lambda item: item.get("title"), rawdata))
+        product_id = list(map(lambda item: item.get("id"), rawdata))
         description = list(map(lambda item: item.get("body_html"), rawdata))
         brand = list(map(lambda item: item.get("vendor"), rawdata))
         category = list(map(lambda item: item.get("product_type"), rawdata))
-        date_release = list(
-            map(
-                lambda item: self.convert_date(item.get("published_at"), date_fmt),
-                rawdata,
-            )
-        )
+        date_release = list(map(lambda item: item.get("published_at"), rawdata))
         slug = list(map(lambda item: item.get("handle"), rawdata))
         # images = list(map(lambda item: item.get("images"), rawdata))
         category = list(map(lambda item: item.get("product_type"), rawdata))
@@ -79,32 +77,38 @@ class ShopifyScraper:
 
         for i, var in enumerate(variants):
             varid = list(map(lambda item: item.get("id"), var))
+            varname = list(map(lambda item: item.get("title"), var))
             sku = list(map(lambda item: item.get("sku"), var))
-            # name = list(map(lambda item: item.get("name"), var))
 
             is_instock = list(map(lambda item: item.get("available"), var))
             price = list(map(lambda item: int(float(item.get("price"))), var))
-            is_discount = list(
-                map(lambda item: item.get("compare_at_price") != item.get("price"), var)
-            )
+            # is_discount = list(
+            #     map(lambda item: item.get("compare_at_price") != item.get("price"), var)
+            # )
 
             product = pd.DataFrame(
                 list(
                     zip(
+                        [product_id[i]] * len(sku),
                         sku,
                         [name[i]] * len(sku),
                         [brand[i]] * len(sku),
                         [category[i]] * len(sku),
+                        varid,
+                        varname,
                         [date_release[i]] * len(sku),
                         [description[i]] * len(sku),
                         [slug[i]] * len(sku),
                     )
                 ),
                 columns=[
+                    "product_id",
                     "sku",
                     "name",
                     "brand",
                     "category",
+                    "variant_id",
+                    "variant_name",
                     "date_release",
                     "description",
                     "slug",
@@ -115,21 +119,27 @@ class ShopifyScraper:
             offers = pd.DataFrame(
                 list(
                     zip(
+                        [product_id[i]] * len(sku),
+                        varid,
                         sku,
                         price,
                         ["IDR"] * len(sku),
                         is_instock,
                         [None] * len(sku),
                         [acquisition_date] * len(sku),
+                        [self.website] * len(sku),
                     )
                 ),
                 columns=[
+                    "product_id",
+                    "variant_id",
                     "sku",
                     "price",
                     "currency",
                     "is_instock",
                     "condition",
-                    "last_updated",
+                    "date_acquisition",
+                    "source",
                 ],
             )
             collectible_offers.append(offers)

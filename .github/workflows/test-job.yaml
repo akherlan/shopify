@@ -38,13 +38,12 @@ jobs:
 
       - name: File checking
         run: |
-          for file in $(ls | grep -E "^p_.+\.csv$"); do
-            wc -l $file
-            tail -n 2 $file >> product.csv
-          done;
-          echo "----- PRODUCT -----" && cat product.csv
           for file in $(ls | grep -E "^o_.+\.csv$"); do
             tail -n 2 $file >> offers.csv
           done;
           echo "----- PRICES -----" && cat offers.csv
+          for file in $(ls | grep -E "^p_.+\.csv$"); do
+            tail -n 2 $file >> product.csv
+          done;
+          echo "----- PRODUCT -----" && cat product.csv
 

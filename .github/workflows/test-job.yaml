@@ -27,23 +27,13 @@ jobs:
 
       - name: Test scraping
         run: |
-          python shopify.py -p p_buttonscarves.csv -o o_buttonscarves.csv https://www.buttonscarves.com
-          python shopify.py -p p_enji.csv -o o_enji.csv https://enji.co.id
-          python shopify.py -p p_etcetera.csv -o o_etcetera.csv https://etcetera.co.id
-          python shopify.py -p p_geela.csv -o o_geela.csv https://geela.id
-          python shopify.py -p p_kami.csv -o o_kami.csv https://kamiidea.com
-          python shopify.py -p p_minimal.csv -o o_minimal.csv https://minimal.id
-          python shopify.py -p p_palomino.csv -o o_palomino.csv https://palominobag.com
-          python shopify.py -p p_purukambera.csv -o o_purukambera.csv https://purukambera.com
+          while read url; do
+            python shopify.py -p products.csv -o offers.csv $url
+            tail -n 3 products.csv >> sample_products.csv
+            tail -n 2 offers.csv >> sample_prices.csv
+          done < shop.txt
 
       - name: File checking
         run: |
-          for file in $(ls | grep -E "^o_.+\.csv$"); do
-            tail -n 2 $file >> offers.csv
-          done;
-          echo "----- PRICES -----" && cat offers.csv
-          for file in $(ls | grep -E "^p_.+\.csv$"); do
-            tail -n 2 $file >> product.csv
-          done;
-          echo "----- PRODUCT -----" && cat product.csv
-
+          echo "----- PRICES -----" && cat sample_prices.csv
+          echo "----- PRODUCT -----" && cat sample_products.csv

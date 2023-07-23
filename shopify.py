@@ -1,34 +1,29 @@
 #!/usr/bin/env python3
 
-import crawler
-import scraper
-import asyncio
+from scraper import ShopifyScraper
 import argparse
 import time
-import re
 
 
-async def main(command, fin, fout):
-    start = time.time()
-    if command == "crawl":
-        if not re.findall("^https?://(www)?.+", fin):
-            print("input must be URL e.g. https://enji.co.id")
-        else:
-            await crawler.scrape_product_url(url=fin, fileout=fout, all_product=True)
-            print(f"---------- {time.time() - start} seconds ----------")
-    elif command == "scrape":
-        await scraper.get_data(fileout=fout, filein=fin)
-        print(f"---------- {time.time() - start} seconds ----------")
-    else:
-        print("must be 'crawl' or 'scrape'")
+def main(url, product_file, offers_file):
+    tic = time.perf_counter()
+
+    shopify = ShopifyScraper(url)
+    data = shopify.fetch()
+    product, offers = shopify.transform(data)
+    shopify.save(product, product_file)
+    shopify.save(offers, offers_file)
+
+    toc = time.perf_counter()
+    print(f"---------- {toc - tic:.2f} seconds ----------")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Scraping product from a Shopify powered website"
     )
-    parser.add_argument("fileout", help="output path for result")
-    parser.add_argument("-c", "--command", help="crawl, scrape")
-    parser.add_argument("-i", "--input", help="website, product links file path")
+    parser.add_argument("url", help="Shopify website")
+    parser.add_argument("-p", "--product", help="product file output")
+    parser.add_argument("-o", "--offers", help="prices file output")
     args = parser.parse_args()
-    asyncio.run(main(command=args.command, fin=args.input, fout=args.fileout))
+    main(url=args.url, product_file=args.product, offers_file=args.offers)

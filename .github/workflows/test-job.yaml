@@ -26,24 +26,20 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Test crawling
+      - name: Test scraping
         run: |
-          python shopify.py -c crawl -i https://enji.co.id enji.txt
-          python shopify.py -c crawl -i https://etcetera.co.id etcetera.txt
-          python shopify.py -c crawl -i https://kamiidea.com kami.txt
-          python shopify.py -c crawl -i https://palominobag.com palomino.txt
-          python shopify.py -c crawl -i https://purukambera.com purukambera.txt
+          python shopify.py -p p_enji.csv -o o_enji.csv https://enji.co.id
+          python shopify.py -p p_etcetera.csv -o o_etcetera.csv https://etcetera.co.id
+          python shopify.py -p p_geela.csv -o o_geela.csv https://geela.id
+          python shopify.py -p p_kami.csv -o o_kami.csv https://kamiidea.com
+          python shopify.py -p p_palomino.csv -o o_palomino.csv https://palominobag.com
+          python shopify.py -p p_purukambera.csv -o o_purukambera.csv https://purukambera.com
 
       - name: File checking
         run: |
-          wc -l enji.txt && head -n 2 enji.txt > test.txt
-          wc -l etcetera.txt && head -n 2 etcetera.txt >> test.txt
-          wc -l kami.txt && head -n 2 kami.txt >> test.txt
-          wc -l palomino.txt && head -n 2 palomino.txt >> test.txt
-          wc -l purukambera.txt && head -n 2 purukambera.txt >> test.txt
-          cat test.txt
+          for file in $(ls | grep -E "p_.+\.csv$"); do
+            wc -l $file
+            tail -n 2 $file >> test.csv
+          done;
+          cat test.csv
 
-      - name: Test scraping
-        run: |
-          python shopify.py -c scrape -i test.txt test.json
-          cat test.json | jq

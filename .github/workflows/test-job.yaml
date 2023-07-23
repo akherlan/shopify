@@ -2,7 +2,6 @@ name: Test Job
 on:
   push:
     branches:
-      - main
       - devel
   pull_request:
     branches:
@@ -37,9 +36,13 @@ jobs:
 
       - name: File checking
         run: |
-          for file in $(ls | grep -E "p_.+\.csv$"); do
+          for file in $(ls | grep -E "^p_.+\.csv$"); do
             wc -l $file
-            tail -n 2 $file >> test.csv
+            tail -n 2 $file >> product.csv
           done;
-          cat test.csv
+          echo "----- PRODUCT -----\n" && cat product.csv
+          for file in $(ls | grep -E "^o_.+\.csv$"); do
+            tail -n 2 $file >> offers.csv
+          done;
+          echo "----- PRICES -----\n" && cat offers.csv
 

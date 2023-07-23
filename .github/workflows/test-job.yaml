@@ -2,7 +2,6 @@ name: Test Job
 on:
   push:
     branches:
-      - main
       - devel
   pull_request:
     branches:
@@ -26,24 +25,15 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Test crawling
+      - name: Test scraping
         run: |
-          python shopify.py -c crawl -i https://enji.co.id enji.txt
-          python shopify.py -c crawl -i https://etcetera.co.id etcetera.txt
-          python shopify.py -c crawl -i https://kamiidea.com kami.txt
-          python shopify.py -c crawl -i https://palominobag.com palomino.txt
-          python shopify.py -c crawl -i https://purukambera.com purukambera.txt
+          while read url; do
+            python shopify.py -p products.csv -o offers.csv $url
+            tail -n 3 products.csv >> sample_products.csv
+            tail -n 2 offers.csv >> sample_prices.csv
+          done < shop.txt
 
       - name: File checking
         run: |
-          wc -l enji.txt && head -n 2 enji.txt > test.txt
-          wc -l etcetera.txt && head -n 2 etcetera.txt >> test.txt
-          wc -l kami.txt && head -n 2 kami.txt >> test.txt
-          wc -l palomino.txt && head -n 2 palomino.txt >> test.txt
-          wc -l purukambera.txt && head -n 2 purukambera.txt >> test.txt
-          cat test.txt
-
-      - name: Test scraping
-        run: |
-          python shopify.py -c scrape -i test.txt test.json
-          cat test.json | jq
+          echo "----- PRICES -----" && cat sample_prices.csv
+          echo "----- PRODUCT -----" && cat sample_products.csv

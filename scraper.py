@@ -12,10 +12,15 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S",
 )
 
+# todo: handle this error httpx.RemoteProtocolError
+
+UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+      "AppleWebKit/537.36 (KHTML, like Gecko) "
+      "Chrome/115.0.0.0 Safari/537.36")
 
 class ShopifyScraper:
     def __init__(self, website, **kwargs):
-        headers = {"user-agent": "httpx"}
+        headers = {"user-agent": UA}
         self.session = httpx.Client(timeout=30, headers=headers, **kwargs)
         self.website = website
 

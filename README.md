@@ -9,7 +9,7 @@ Indonesia local brand:
 - [En-Ji](https://enji.co.id/)
 - [Erigo](https://erigostore.co.id/)
 - [Et Cetera](https://etcetera.co.id/)
-- [Executive] (https://executive.co.id/)
+- [Executive](https://executive.co.id/)
 - [Geela](https://geela.id/)
 - [Kami](https://kamiidea.com/)
 - [Major Minor](https://shop.majorminorstore.com/)

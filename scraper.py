@@ -49,8 +49,8 @@ class ShopifyScraper:
                 last = bool(not len(rawjson)) or len(data) >= limit
                 p += 1
             else:
-                logging.error("bad response {}".format(response.status_code))
-                return
+                logging.error("status {}".format(response.status_code))
+                break
 
         if len(data) > limit:
             data = data[:limit]

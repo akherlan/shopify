@@ -28,7 +28,7 @@ jobs:
       - name: Test scraping
         run: |
           while read url; do
-            python shopify.py -p products.csv -o offers.csv $url
+            python shopify.py -p products.csv -o offers.csv -t $url
             tail -n 3 products.csv >> sample_products.csv
             tail -n 2 offers.csv >> sample_prices.csv
           done < shop.txt
